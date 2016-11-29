@@ -21,7 +21,7 @@ public class FindBusStop implements Runnable {
 
     public FindBusStop(TripsCallback callback, String searchTerm) {
         this.listener = callback;
-        this.searchTerm = searchTerm;
+        this.searchTerm = searchTerm.replaceAll("[^\\p{IsAlphabetic}\\s]", ""); // only letters and spaces are supported in search term
     }
 
     public void run() {
