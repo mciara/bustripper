@@ -3,7 +3,6 @@ package io.telenor.bustripper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -61,7 +60,7 @@ public class Main {
                     System.out.print("> ");
                     try {
                         String searchterm = in.readLine();
-                        if("q" == searchterm || searchterm.length() == 0) {
+                        if("q".equals(searchterm) || searchterm.length() == 0) {
                             System.exit(0);
                         }
                         System.out.println("Looking up " + searchterm);
