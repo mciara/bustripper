@@ -9,6 +9,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * FINDS a busline for stop ID
@@ -23,12 +24,12 @@ public class FindBusLinesForStop implements Runnable {
     private Client client;
     private String stopId;
     private TripsCallback listener;
-    private boolean last;
+    private CountDownLatch doneWork;
 
-    public FindBusLinesForStop(String stopId, TripsCallback callback, boolean last) {
+    public FindBusLinesForStop(String stopId, TripsCallback callback, CountDownLatch doneWork) {
         this.stopId = stopId;
         this.listener = callback;
-        this.last = last;
+        this.doneWork = doneWork;
     }
 
     public void run() {
@@ -45,7 +46,7 @@ public class FindBusLinesForStop implements Runnable {
                 .request(MediaType.APPLICATION_JSON);
 
         final AsyncInvoker asyncInvoker = invocationBuilder.async();
-        asyncInvoker.get(new BusTripsCallBack(target, listener, last));
+        asyncInvoker.get(new BusTripsCallBack(target, listener, doneWork));
 
     }
 

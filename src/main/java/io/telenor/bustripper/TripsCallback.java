@@ -11,9 +11,13 @@ public interface TripsCallback {
     /**
      * Got a list of trips
      * @param trips the set of bus trips found
-     * @param done true if this call is the last batch of trips and no more callbacks will be given.
      */
-    public void gotTrips(Set<BusTrip> trips, boolean done);
+    public void gotTrips(Set<BusTrip> trips);
+
+    /**
+     * Output returned trips
+     */
+    public void completed();
 
     /**
      * Faild getting the list of trips.

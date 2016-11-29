@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Callback from Jersey when bustrips are there.
@@ -16,31 +17,29 @@ public class BusTripsCallBack implements InvocationCallback<Response> {
     ObjectMapper mapper = new ObjectMapper();
     String url;
     private TripsCallback listener;
-    private boolean last;
+    private CountDownLatch doneWork;
 
-    public BusTripsCallBack(String url, TripsCallback callback, boolean last) {
+    public BusTripsCallBack(String url, TripsCallback callback, CountDownLatch doneWork) {
         this.url = url;
         this.listener = callback;
-        this.last = last;
+        this.doneWork = doneWork;
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     public void completed(Response response) {
-        ObjectMapper mapper = new ObjectMapper();
         String content = response.readEntity(String.class);
 
         try {
-            BusTrip[] trips = mapper.readValue(content, BusTrip[].class);
-            HashSet set = new HashSet(Arrays.asList(trips));
-            if(!set.isEmpty())
-                listener.gotTrips(set, last);
-
-        } catch (IOException e) {
-            if(last) {
-                listener.failedGettingTrips(e);
+            if (!content.isEmpty()) {
+                BusTrip[] trips = mapper.readValue(content, BusTrip[].class);
+                HashSet<BusTrip> set = new HashSet<>(Arrays.asList(trips));
+                listener.gotTrips(set);
             }
+        } catch (IOException e) {
+            listener.failedGettingTrips(e);
+        } finally {
+            doneWork.countDown();
         }
-
     }
 
     public void failed(Throwable throwable) {
